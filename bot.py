@@ -1,14 +1,14 @@
 import os
 import requests
-import telegram
 import schedule
 import time
+from telegram import Bot
 
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 API_KEY = os.getenv("API_KEY")
 
-bot = telegram.Bot(token=TOKEN)
+bot = Bot(token=TOKEN)
 
 HEADERS = {
     "x-rapidapi-key": API_KEY,
@@ -25,14 +25,14 @@ def get_today_matches():
     response = requests.get(url, headers=HEADERS)
     data = response.json()
 
-    return data["response"]
+    return data.get("response", [])
 
 
 def analyze_match(match):
     home = match["teams"]["home"]["name"]
     away = match["teams"]["away"]["name"]
 
-    # valeurs temporaires (on remplacera par vraies stats en V3)
+    # ⚠️ Valeurs temporaires (V1)
     league_avg_goals = 2.8
     odds = 1.85
 
@@ -64,8 +64,7 @@ def analyze_match(match):
     if odds < 1.60 or odds > 2.20:
         return None
 
-    return f"""
-🔥 OVERBTTS PICK
+    return f"""🔥 OVERBTTS PICK
 
 ⚽ {home} vs {away}
 🎯 Pick : {pick}
@@ -92,7 +91,10 @@ def send_picks():
 
     bot.send_message(chat_id=CHAT_ID, text=msg)
 
+
+# Test au démarrage (tu peux supprimer après)
 send_picks()
+
 schedule.every().day.at("08:00").do(send_picks)
 
 print("OverBtts Bot actif...")
