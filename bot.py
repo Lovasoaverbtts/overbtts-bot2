@@ -92,7 +92,7 @@ def send_picks():
 
     bot.send_message(chat_id=CHAT_ID, text=msg)
 
-
+send_picks()
 schedule.every().day.at("08:00").do(send_picks)
 
 print("OverBtts Bot actif...")
